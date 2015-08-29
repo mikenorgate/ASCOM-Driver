@@ -39,6 +39,24 @@ namespace Norgate.ASCOM.Driver.UnitTests
         }
 
         [TestMethod]
+        public void SetSlewRate_NegativeSlew_PositionUpdatesAtSlewRate()
+        {
+            var fakeTelescope = new FakeTelescope();
+            fakeTelescope.SiderealTime = TimeSpan.FromHours(3).TotalHours;
+            var controller = new RAAxisController(fakeTelescope);
+
+            controller.SlewRate = -1;
+            fakeTelescope.SiderealTime += TimeSpan.FromSeconds(10).TotalHours;
+            var location = TimeSpan.FromHours(controller.Position);
+            Assert.AreEqual(Math.Round(Constants.SECONDS_PER_SIDEREAL_DAY - 10), Math.Round(location.TotalSeconds));
+
+            controller.SlewRate = -8;
+            fakeTelescope.SiderealTime += TimeSpan.FromSeconds(10).TotalHours;
+            location = TimeSpan.FromHours(controller.Position);
+            Assert.AreEqual(Math.Round(Constants.SECONDS_PER_SIDEREAL_DAY - 90), Math.Round(location.TotalSeconds));
+        }
+
+        [TestMethod]
         public void SetPosition_PositionUpdatesToNewPositionAndContinuesTracking()
         {
             var fakeTelescope = new FakeTelescope();
@@ -55,6 +73,26 @@ namespace Norgate.ASCOM.Driver.UnitTests
             fakeTelescope.SiderealTime += TimeSpan.FromSeconds(10).TotalHours;
             location = TimeSpan.FromHours(controller.Position);
             Assert.AreEqual(46880, Math.Round(location.TotalSeconds));
+        }
+
+        [TestMethod]
+        public void SetPosition_NegativeSlew_PositionUpdatesToNewPositionAndContinuesTracking()
+        {
+            var fakeTelescope = new FakeTelescope();
+            fakeTelescope.SiderealTime = TimeSpan.FromHours(3).TotalHours;
+            var controller = new RAAxisController(fakeTelescope);
+
+            controller.Position = TimeSpan.FromHours(1).TotalHours;
+            controller.SlewRate = -1;
+            fakeTelescope.SiderealTime += TimeSpan.FromSeconds(10).TotalHours;
+            var location = TimeSpan.FromHours(controller.Position);
+            Assert.AreEqual(3590, Math.Round(location.TotalSeconds));
+
+            controller.Position = TimeSpan.FromHours(13).TotalHours;
+            controller.SlewRate = -8;            
+            fakeTelescope.SiderealTime += TimeSpan.FromSeconds(10).TotalHours;
+            location = TimeSpan.FromHours(controller.Position);
+            Assert.AreEqual(46720, Math.Round(location.TotalSeconds));
         }
 
         [TestMethod]

@@ -30,16 +30,23 @@ namespace ASCOM.Norgate
             {
 
                 //Gone past end of day
-                if (!(_telescope.SiderealTime < _startTime))
-                    return (_slewRate * (_telescope.SiderealTime - _startTime)) + _previousSlew;
-
-                lock (_lockObject)
+                if ((_telescope.SiderealTime < _startTime))
                 {
-                    _previousSlew = (_slewRate * (Constants.HOURS_PER_SIDEREAL_DAY - _startTime)) + _previousSlew;
-                    _startTime = 0;
+                    lock (_lockObject)
+                    {
+                        _previousSlew = (_slewRate*(Constants.HOURS_PER_SIDEREAL_DAY - _startTime)) + _previousSlew;
+                        _startTime = 0;
+                    }
                 }
 
-                return (_slewRate * (_telescope.SiderealTime - _startTime)) + _previousSlew;
+                var value = (_slewRate * (_telescope.SiderealTime - _startTime)) + _previousSlew;
+
+                if (value < 0)
+                {
+                    value = Constants.HOURS_PER_SIDEREAL_DAY - Math.Abs(value);
+                }
+
+                return value;
 
             }
             set
