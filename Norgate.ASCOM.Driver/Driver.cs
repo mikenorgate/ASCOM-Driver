@@ -293,12 +293,15 @@ namespace ASCOM.Norgate
             throw new ASCOM.MethodNotImplementedException("AbortSlew");
         }
 
+        /// <summary>
+        /// The alignment mode of the mount (Alt/Az, Polar, German Polar). 
+        /// </summary>
         public AlignmentModes AlignmentMode
         {
             get
             {
                 tl.LogMessage("AlignmentMode Get", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("AlignmentMode", false);
+                return AlignmentModes.algGermanPolar;
             }
         }
 
@@ -347,6 +350,11 @@ namespace ASCOM.Norgate
             }
         }
 
+        /// <summary>
+        /// Determine the rates at which the telescope may be moved about the specified axis by the MoveAxis(TelescopeAxes, Double) method
+        /// </summary>
+        /// <param name="Axis">The axis about which rate information is desired (TelescopeAxes value)</param>
+        /// <returns>Collection of IRate rate objects</returns>
         public IAxisRates AxisRates(TelescopeAxes Axis)
         {
             tl.LogMessage("AxisRates", "Get - " + Axis.ToString());
@@ -371,13 +379,18 @@ namespace ASCOM.Norgate
             }
         }
 
+        /// <summary>
+        /// True if this telescope can move the requested axis 
+        /// </summary>
+        /// <param name="Axis">Primary, Secondary or Tertiary axis</param>
+        /// <returns>Boolean indicating can or can not move the requested axis</returns>
         public bool CanMoveAxis(TelescopeAxes Axis)
         {
             tl.LogMessage("CanMoveAxis", "Get - " + Axis.ToString());
             switch (Axis)
             {
-                case TelescopeAxes.axisPrimary: return false;
-                case TelescopeAxes.axisSecondary: return false;
+                case TelescopeAxes.axisPrimary: return true;
+                case TelescopeAxes.axisSecondary: return true;
                 case TelescopeAxes.axisTertiary: return false;
                 default: throw new InvalidValueException("CanMoveAxis", Axis.ToString(), "0 to 2");
             }
@@ -563,6 +576,9 @@ namespace ASCOM.Norgate
             }
         }
 
+        /// <summary>
+        /// Equatorial coordinate system used by this telescope (e.g. Topocentric or J2000). 
+        /// </summary>
         public EquatorialCoordinateType EquatorialSystem
         {
             get
@@ -688,6 +704,9 @@ namespace ASCOM.Norgate
             }
         }
 
+        /// <summary>
+        /// The local apparent sidereal time from the telescope's internal clock (hours, sidereal) 
+        /// </summary>
         public double SiderealTime
         {
             get
@@ -860,12 +879,16 @@ namespace ASCOM.Norgate
             }
         }
 
+        /// <summary>
+        /// The current tracking rate of the telescope's sidereal drive 
+        /// </summary>
         public DriveRates TrackingRate
         {
             get
             {
-                tl.LogMessage("TrackingRate Get", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("TrackingRate", false);
+                var rate = TrackingRates[1];
+                tl.LogMessage("TrackingRate Get", rate.ToString());
+                return rate;
             }
             set
             {
@@ -874,6 +897,9 @@ namespace ASCOM.Norgate
             }
         }
 
+        /// <summary>
+        /// Returns a collection of supported DriveRates values that describe the permissible values of the TrackingRate property for this telescope type. 
+        /// </summary>
         public ITrackingRates TrackingRates
         {
             get
@@ -888,6 +914,9 @@ namespace ASCOM.Norgate
             }
         }
 
+        /// <summary>
+        /// The UTC date/time of the telescope's internal clock 
+        /// </summary>
         public DateTime UTCDate
         {
             get
