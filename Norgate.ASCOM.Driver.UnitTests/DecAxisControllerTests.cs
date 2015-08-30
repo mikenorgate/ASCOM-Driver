@@ -37,6 +37,23 @@ namespace Norgate.ASCOM.Driver.UnitTests
         }
 
         [TestMethod]
+        public void Slew_Plus_SetsSlewing()
+        {
+            var fakeTelescope = new FakeTelescope();
+            fakeTelescope.SiderealTime = TimeSpan.FromHours(3).TotalHours;
+            var controller = new DecAxisController(fakeTelescope);
+            controller.Connect();
+
+            var task = controller.Slew(Orientation.Plus, TimeSpan.FromSeconds(10));
+            Assert.IsTrue(controller.Slewing);
+
+            fakeTelescope.SiderealTime += TimeSpan.FromSeconds(10).TotalHours;
+
+            task.Wait();
+            Assert.IsFalse(controller.Slewing);
+        }
+
+        [TestMethod]
         public void Slew_Plus_PositionUpdatesAtSlewRatePoitiveStart()
         {
             var fakeTelescope = new FakeTelescope();
@@ -128,6 +145,23 @@ namespace Norgate.ASCOM.Driver.UnitTests
 
             task.Wait();
             Assert.AreEqual(-(Math.Round((Constants.DEGREES_PER_SECOND * 8) * 10, 4)), Math.Round(controller.Position, 4));
+        }
+
+        [TestMethod]
+        public void Slew_Minus_SetsSlewing()
+        {
+            var fakeTelescope = new FakeTelescope();
+            fakeTelescope.SiderealTime = TimeSpan.FromHours(3).TotalHours;
+            var controller = new DecAxisController(fakeTelescope);
+            controller.Connect();
+
+            var task = controller.Slew(Orientation.Minus, TimeSpan.FromSeconds(10));
+            Assert.IsTrue(controller.Slewing);
+
+            fakeTelescope.SiderealTime += TimeSpan.FromSeconds(10).TotalHours;
+
+            task.Wait();
+            Assert.IsFalse(controller.Slewing);
         }
 
         [TestMethod]
@@ -240,6 +274,23 @@ namespace Norgate.ASCOM.Driver.UnitTests
             controller.StopSlew();
 
             Assert.AreEqual(0, controller.SlewRate);
+        }
+
+        [TestMethod]
+        public void StartStopSlew_Minus_SetsSlewing()
+        {
+            var fakeTelescope = new FakeTelescope();
+            fakeTelescope.SiderealTime = TimeSpan.FromHours(3).TotalHours;
+            var controller = new DecAxisController(fakeTelescope);
+            controller.Connect();
+
+            controller.StartSlew(Orientation.Minus);
+
+            Assert.IsTrue(controller.Slewing);
+
+            controller.StopSlew();
+
+            Assert.IsFalse(controller.Slewing);
         }
 
         [TestMethod]

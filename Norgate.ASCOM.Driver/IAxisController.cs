@@ -11,6 +11,8 @@ namespace ASCOM.Norgate
         double Position { get; set; }
         double SlewRate { get; }
 
+        bool Slewing { get; }
+
         void Connect();
 
         void Disconnect();

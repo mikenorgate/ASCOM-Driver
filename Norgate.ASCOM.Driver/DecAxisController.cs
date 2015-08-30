@@ -84,6 +84,11 @@ namespace ASCOM.Norgate
             }
         }
 
+        public bool Slewing
+        {
+            get { return _slewing; }
+        }
+
         public void Connect()
         {
             //This axis does not support tracking

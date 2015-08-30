@@ -175,5 +175,135 @@ namespace Norgate.ASCOM.Driver.UnitTests
             Assert.IsFalse(telescope.CanSetDeclinationRate);
         }
         #endregion CanSetDeclinationRate
+
+        #region MoveAxis
+        [TestMethod]
+        [ExpectedException(typeof(InvalidValueException))]
+        public void MoveAxis_TertiaryAxis_ThrowsException()
+        {
+            telescope.MoveAxis(TelescopeAxes.axisTertiary, 0);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidValueException))]
+        public void MoveAxis_PrimaryAxisRateOverMaxPositive_ThrowsException()
+        {
+            telescope.MoveAxis(TelescopeAxes.axisPrimary, 10);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidValueException))]
+        public void MoveAxis_PrimaryAxisRateOverMaxNegative_ThrowsException()
+        {
+            telescope.MoveAxis(TelescopeAxes.axisPrimary, -10);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidValueException))]
+        public void MoveAxis_SecondaryAxisRateOverMaxPositive_ThrowsException()
+        {
+            telescope.MoveAxis(TelescopeAxes.axisSecondary, 10);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidValueException))]
+        public void MoveAxis_SecondaryAxisRateOverMaxNegative_ThrowsException()
+        {
+            telescope.MoveAxis(TelescopeAxes.axisSecondary, -10);
+        }
+
+        [TestMethod]
+        public void MoveAxis_PrimaryAxisStartStopSlew_StartsStopsSlewing()
+        {
+            telescope.RAAxisController.Connect();
+            telescope.MoveAxis(TelescopeAxes.axisPrimary, telescope.AxisRates(TelescopeAxes.axisPrimary)[1].Maximum);
+
+            Assert.IsTrue(telescope.RAAxisController.Slewing);
+            Assert.IsFalse(telescope.DecAxisController.Slewing);
+            Assert.IsTrue(telescope.Slewing);
+
+            telescope.MoveAxis(TelescopeAxes.axisPrimary, 0);
+
+            Assert.IsFalse(telescope.RAAxisController.Slewing);
+            Assert.IsFalse(telescope.DecAxisController.Slewing);
+            Assert.IsFalse(telescope.Slewing);
+        }
+
+        [TestMethod]
+        public void MoveAxis_SecondaryAxisStartStopSlew_StartsStopsSlewing()
+        {
+            telescope.DecAxisController.Connect();
+            telescope.MoveAxis(TelescopeAxes.axisSecondary, telescope.AxisRates(TelescopeAxes.axisSecondary)[1].Maximum);
+
+            Assert.IsTrue(telescope.DecAxisController.Slewing);
+            Assert.IsFalse(telescope.RAAxisController.Slewing);
+            Assert.IsTrue(telescope.Slewing);
+
+            telescope.MoveAxis(TelescopeAxes.axisSecondary, 0);
+
+            Assert.IsFalse(telescope.DecAxisController.Slewing);
+            Assert.IsFalse(telescope.RAAxisController.Slewing);
+            Assert.IsFalse(telescope.Slewing);
+        }
+
+        [TestMethod]
+        public void MoveAxis_DualAxisStartStopSlew_StartsStopsSlewing()
+        {
+            telescope.RAAxisController.Connect();
+            telescope.DecAxisController.Connect();
+            telescope.MoveAxis(TelescopeAxes.axisPrimary, telescope.AxisRates(TelescopeAxes.axisPrimary)[1].Maximum);
+            telescope.MoveAxis(TelescopeAxes.axisSecondary, telescope.AxisRates(TelescopeAxes.axisSecondary)[1].Maximum);
+
+            Assert.IsTrue(telescope.RAAxisController.Slewing);
+            Assert.IsTrue(telescope.DecAxisController.Slewing);
+            Assert.IsTrue(telescope.Slewing);
+
+            telescope.MoveAxis(TelescopeAxes.axisPrimary, 0);
+
+            Assert.IsFalse(telescope.RAAxisController.Slewing);
+            Assert.IsTrue(telescope.DecAxisController.Slewing);          
+            Assert.IsTrue(telescope.Slewing);
+
+            telescope.MoveAxis(TelescopeAxes.axisSecondary, 0);
+
+            Assert.IsFalse(telescope.RAAxisController.Slewing);
+            Assert.IsFalse(telescope.DecAxisController.Slewing);
+            Assert.IsFalse(telescope.Slewing);
+        }
+        #endregion MoveAxis
+
+        #region Slewing
+        [TestMethod]
+        public void Slewing_FalseByDefault()
+        {
+            Assert.IsFalse(telescope.Slewing);
+        }
+
+        [TestMethod]
+        public void Slewing_TrueIfRAAxisSlewing()
+        {
+            telescope.RAAxisController.Connect();
+            telescope.RAAxisController.StartSlew(Orientation.Plus);
+            Assert.IsTrue(telescope.Slewing);
+        }
+
+        [TestMethod]
+        public void Slewing_TrueIfDecAxisSlewing()
+        {
+            telescope.DecAxisController.Connect();
+            telescope.DecAxisController.StartSlew(Orientation.Plus);
+            Assert.IsTrue(telescope.Slewing);
+        }
+
+        [TestMethod]
+        public void Slewing_TrueIfDecAxisAndRAAxisSlewing()
+        {
+            telescope.RAAxisController.Connect();
+            telescope.DecAxisController.Connect();
+            telescope.DecAxisController.StartSlew(Orientation.Plus);
+            telescope.RAAxisController.StartSlew(Orientation.Plus);
+            Assert.IsTrue(telescope.Slewing);
+        }
+        #endregion Slewing
     }
 }

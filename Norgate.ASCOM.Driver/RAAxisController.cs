@@ -80,9 +80,14 @@ namespace ASCOM.Norgate
                     _previousSlew = Position;
                     _startTime = _telescope.SiderealTime;
                     _slewRate = value;
-                    _slewing = value == SLEW_RATE;
+                    _slewing = Math.Abs(value) == SLEW_RATE;
                 }
             }
+        }
+
+        public bool Slewing
+        {
+            get { return _slewing; }
         }
 
         public void Connect()

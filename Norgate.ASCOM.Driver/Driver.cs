@@ -56,7 +56,7 @@ namespace ASCOM.Norgate
     /// <summary>
     /// ASCOM Telescope Driver for Norgate.
     /// </summary>
-    [Guid("b3dd5aa9-e4bb-4cd3-85d5-1f8456fc22a5")]
+    [Guid("921d478b-8854-4065-b492-e06bdb012fca")]
     [ClassInterface(ClassInterfaceType.None)]
     public class Telescope : ITelescopeV3
     {
@@ -672,10 +672,37 @@ namespace ASCOM.Norgate
             }
         }
 
-        public void MoveAxis(TelescopeAxes Axis, double Rate)
+        //TODO: Update this to error when at park
+        /// <summary>
+        /// Move the telescope in one axis at the given rate. 
+        /// </summary>
+        /// <param name="axis">The physical axis about which movement is desired</param>
+        /// <param name="rate">The rate of motion (deg/sec) about the specified axis</param>
+        public void MoveAxis(TelescopeAxes axis, double rate)
         {
-            tl.LogMessage("MoveAxis", "Not implemented");
-            throw new ASCOM.MethodNotImplementedException("MoveAxis");
+            tl.LogMessage("MoveAxis", "TelescopeAxis - " + axis.ToString() + "Rate - " + rate.ToString());
+            //Some checks on given values for API conformity
+            if (axis == TelescopeAxes.axisTertiary)
+            {
+                throw new ASCOM.InvalidValueException("TelescopeAxes", axis.ToString(), "No ternary axis on ST-4");
+            }
+            IRate axisRate = this.AxisRates(axis)[1];
+            if (Math.Abs(rate) > axisRate.Maximum || Math.Abs(rate) < axisRate.Minimum)
+            {
+                throw new ASCOM.InvalidValueException("AxisRate", rate.ToString(), axisRate.Minimum + ".." + axisRate.Maximum);
+            }
+
+            var orientation = rate < 0 ? Orientation.Minus : Orientation.Plus;
+            var axisController = axis == TelescopeAxes.axisPrimary ? raAxisController : decAxisController;
+
+            if (rate == 0)
+            {
+                axisController.StopSlew();
+            }
+            else
+            {
+                axisController.StartSlew(orientation);
+            }
         }
 
         public void Park()
@@ -846,12 +873,16 @@ namespace ASCOM.Norgate
             throw new ASCOM.MethodNotImplementedException("SlewToTargetAsync");
         }
 
+        /// <summary>
+        /// True if telescope is currently moving in response to one of the Slew methods or the MoveAxis(TelescopeAxes, Double) method, False at all other times. 
+        /// </summary>
         public bool Slewing
         {
             get
             {
-                tl.LogMessage("Slewing Get", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("Slewing", false);
+                var value = raAxisController.Slewing || decAxisController.Slewing;
+                tl.LogMessage("Slewing Get", value.ToString());
+                return value;
             }
         }
 
