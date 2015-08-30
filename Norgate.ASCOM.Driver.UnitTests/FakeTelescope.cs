@@ -136,57 +136,57 @@ namespace Norgate.ASCOM.Driver.UnitTests
         }
 
         public bool Connected { get; set; }
-        public string Description { get; }
-        public string DriverInfo { get; }
-        public string DriverVersion { get; }
-        public short InterfaceVersion { get; }
-        public string Name { get; }
-        public ArrayList SupportedActions { get; }
-        public AlignmentModes AlignmentMode { get; }
-        public double Altitude { get; }
-        public double ApertureArea { get; }
-        public double ApertureDiameter { get; }
-        public bool AtHome { get; }
-        public bool AtPark { get; }
-        public double Azimuth { get; }
-        public bool CanFindHome { get; }
-        public bool CanPark { get; }
-        public bool CanPulseGuide { get; }
-        public bool CanSetDeclinationRate { get; }
-        public bool CanSetGuideRates { get; }
-        public bool CanSetPark { get; }
-        public bool CanSetPierSide { get; }
-        public bool CanSetRightAscensionRate { get; }
-        public bool CanSetTracking { get; }
-        public bool CanSlew { get; }
-        public bool CanSlewAltAz { get; }
-        public bool CanSlewAltAzAsync { get; }
-        public bool CanSlewAsync { get; }
-        public bool CanSync { get; }
-        public bool CanSyncAltAz { get; }
-        public bool CanUnpark { get; }
-        public double Declination { get; }
+        public string Description { get; set; }
+        public string DriverInfo { get; set; }
+        public string DriverVersion { get; set; }
+        public short InterfaceVersion { get; set; }
+        public string Name { get; set; }
+        public ArrayList SupportedActions { get; set; }
+        public AlignmentModes AlignmentMode { get; set; }
+        public double Altitude { get; set; }
+        public double ApertureArea { get; set; }
+        public double ApertureDiameter { get; set; }
+        public bool AtHome { get; set; }
+        public bool AtPark { get; set; }
+        public double Azimuth { get; set; }
+        public bool CanFindHome { get; set; }
+        public bool CanPark { get; set; }
+        public bool CanPulseGuide { get; set; }
+        public bool CanSetDeclinationRate { get; set; }
+        public bool CanSetGuideRates { get; set; }
+        public bool CanSetPark { get; set; }
+        public bool CanSetPierSide { get; set; }
+        public bool CanSetRightAscensionRate { get; set; }
+        public bool CanSetTracking { get; set; }
+        public bool CanSlew { get; set; }
+        public bool CanSlewAltAz { get; set; }
+        public bool CanSlewAltAzAsync { get; set; }
+        public bool CanSlewAsync { get; set; }
+        public bool CanSync { get; set; }
+        public bool CanSyncAltAz { get; set; }
+        public bool CanUnpark { get; set; }
+        public double Declination { get; set; }
         public double DeclinationRate { get; set; }
         public bool DoesRefraction { get; set; }
-        public EquatorialCoordinateType EquatorialSystem { get; }
-        public double FocalLength { get; }
+        public EquatorialCoordinateType EquatorialSystem { get; set; }
+        public double FocalLength { get; set; }
         public double GuideRateDeclination { get; set; }
         public double GuideRateRightAscension { get; set; }
-        public bool IsPulseGuiding { get; }
-        public double RightAscension { get; }
+        public bool IsPulseGuiding { get; set; }
+        public double RightAscension { get; set; }
         public double RightAscensionRate { get; set; }
         public PierSide SideOfPier { get; set; }
         public double SiderealTime { get; set; }
         public double SiteElevation { get; set; }
         public double SiteLatitude { get; set; }
         public double SiteLongitude { get; set; }
-        public bool Slewing { get; }
+        public bool Slewing { get; set; }
         public short SlewSettleTime { get; set; }
         public double TargetDeclination { get; set; }
         public double TargetRightAscension { get; set; }
         public bool Tracking { get; set; }
         public DriveRates TrackingRate { get; set; }
-        public ITrackingRates TrackingRates { get; }
+        public ITrackingRates TrackingRates { get; set; }
         public DateTime UTCDate { get; set; }
     }
 }

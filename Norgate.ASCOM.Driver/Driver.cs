@@ -56,7 +56,7 @@ namespace ASCOM.Norgate
     /// <summary>
     /// ASCOM Telescope Driver for Norgate.
     /// </summary>
-    [Guid("25a2abb3-10ee-4414-b64b-dfa2f8503380")]
+    [Guid("b3dd5aa9-e4bb-4cd3-85d5-1f8456fc22a5")]
     [ClassInterface(ClassInterfaceType.None)]
     public class Telescope : ITelescopeV3
     {
@@ -99,6 +99,19 @@ namespace ASCOM.Norgate
         /// </summary>
         private TraceLogger tl;
 
+        private IAxisController raAxisController;
+        private IAxisController decAxisController;
+
+        public IAxisController RAAxisController
+        {
+            get { return raAxisController; }
+        }
+
+        public IAxisController DecAxisController
+        {
+            get { return decAxisController; }
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Norgate"/> class.
         /// Must be public for COM registration.
@@ -115,6 +128,8 @@ namespace ASCOM.Norgate
             utilities = new Util(); //Initialise util object
             astroUtilities = new AstroUtils(); // Initialise astro utilities object
             //TODO: Implement your additional construction here
+            raAxisController = new RAAxisController(this);
+            decAxisController = new DecAxisController(this);
 
             tl.LogMessage("Telescope", "Completed initialisation");
         }
@@ -221,12 +236,16 @@ namespace ASCOM.Norgate
                     connectedState = true;
                     tl.LogMessage("Connected Set", "Connecting to port " + comPort);
                     // TODO connect to the device
+                    raAxisController.Connect();
+                    decAxisController.Connect();
                 }
                 else
                 {
                     connectedState = false;
                     tl.LogMessage("Connected Set", "Disconnecting from port " + comPort);
                     // TODO disconnect from the device
+                    raAxisController.Disconnect();
+                    decAxisController.Disconnect();
                 }
             }
         }
@@ -414,6 +433,9 @@ namespace ASCOM.Norgate
             }
         }
 
+        /// <summary>
+        /// True if the DeclinationRate property can be changed to provide offset tracking in the declination axis.
+        /// </summary>
         public bool CanSetDeclinationRate
         {
             get
@@ -450,6 +472,9 @@ namespace ASCOM.Norgate
             }
         }
 
+        /// <summary>
+        /// True if the RightAscensionRate property can be changed to provide offset tracking in the right ascension axis
+        /// </summary>
         public bool CanSetRightAscensionRate
         {
             get
@@ -531,16 +556,22 @@ namespace ASCOM.Norgate
             }
         }
 
+        /// <summary>
+        /// The declination (degrees) of the telescope's current equatorial coordinates, in the coordinate system given by the EquatorialSystem property. Reading the property will raise an error if the value is unavailable.
+        /// </summary>
         public double Declination
         {
             get
             {
-                double declination = 0.0;
+                double declination = decAxisController.Position;
                 tl.LogMessage("Declination", "Get - " + utilities.DegreesToDMS(declination, ":", ":"));
                 return declination;
             }
         }
 
+        /// <summary>
+        /// The declination tracking rate (arcseconds per second, default = 0.0) 
+        /// </summary>
         public double DeclinationRate
         {
             get
@@ -659,16 +690,22 @@ namespace ASCOM.Norgate
             throw new ASCOM.MethodNotImplementedException("PulseGuide");
         }
 
+        /// <summary>
+        /// The right ascension (hours) of the telescope's current equatorial coordinates, in the coordinate system given by the EquatorialSystem property 
+        /// </summary>
         public double RightAscension
         {
             get
             {
-                double rightAscension = 0.0;
+                double rightAscension = raAxisController.Position;
                 tl.LogMessage("RightAscension", "Get - " + utilities.HoursToHMS(rightAscension));
                 return rightAscension;
             }
         }
 
+        /// <summary>
+        /// The right ascension tracking rate offset from sidereal (seconds per sidereal second, default = 0.0) 
+        /// </summary>
         public double RightAscensionRate
         {
             get

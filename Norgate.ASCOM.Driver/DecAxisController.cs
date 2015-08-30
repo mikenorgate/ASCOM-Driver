@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Timers;
 using ASCOM.DeviceInterface;
 
 namespace ASCOM.Norgate
 {
-    public class RAAxisController : IAxisController
+    public class DecAxisController : IAxisController
     {
-        private const double TRACKING_RATE = 1;
+        private const double MAX_ANGLE = 90;
         private const double SLEW_RATE = 8;
 
         private double _startTime;
@@ -23,7 +22,7 @@ namespace ASCOM.Norgate
         private bool _slewing;
         private bool _started;
 
-        public RAAxisController(ITelescopeV3 telescope)
+        public DecAxisController(ITelescopeV3 telescope)
         {
             _previousSlew = 0;
             _slewRate = 0;
@@ -42,23 +41,23 @@ namespace ASCOM.Norgate
                 {
                     lock (_lockObject)
                     {
-                        _previousSlew = (_slewRate*(Constants.HOURS_PER_SIDEREAL_DAY - _startTime)) + _previousSlew;
+                        _previousSlew = (_slewRate * ((Constants.HOURS_PER_SIDEREAL_DAY - _startTime)) * Constants.DEGREES_PER_HOUR) + _previousSlew;
                         _startTime = 0;
                     }
                 }
 
-                var value = (_slewRate * (_telescope.SiderealTime - _startTime)) + _previousSlew;
+                var value = (_slewRate * ((_telescope.SiderealTime - _startTime) * Constants.DEGREES_PER_HOUR)) + _previousSlew;
 
-                if (value < 0)
+                if (Math.Abs(value) > MAX_ANGLE)
                 {
-                    value = Constants.HOURS_PER_SIDEREAL_DAY - Math.Abs(value);
-                }else if (value > Constants.HOURS_PER_SIDEREAL_DAY)
-                {
-                    value = Math.Abs(value) - Constants.HOURS_PER_SIDEREAL_DAY;
+                    _previousSlew = value > 0 ? MAX_ANGLE : -MAX_ANGLE;
+                    _startTime = _telescope.SiderealTime;
+                    _slewRate = 0;
+                    _slewing = false;
+                    value = _previousSlew;
                 }
 
                 return value;
-
             }
             set
             {
@@ -80,19 +79,14 @@ namespace ASCOM.Norgate
                     _previousSlew = Position;
                     _startTime = _telescope.SiderealTime;
                     _slewRate = value;
-                    _slewing = value == SLEW_RATE;
+                    _slewing = value != 0d;
                 }
             }
         }
 
         public void Connect()
         {
-            if(_tracking || _slewing) return;
-
-            SlewRate = TRACKING_RATE;
-            _startTime = _telescope.SiderealTime;
-
-            _tracking = true;
+            //This axis does not support tracking
             _started = true;
         }
 
@@ -100,10 +94,7 @@ namespace ASCOM.Norgate
         {
             _previousSlew = Position;
             SlewRate = 0;
-
-            _tracking = false;
-            _slewing = false;
-
+            
             _started = false;
         }
 
@@ -119,7 +110,7 @@ namespace ASCOM.Norgate
 
             return Task.Factory.StartNew(() =>
             {
-                while (_telescope.SiderealTime < endTime && _slewing) ;
+                while (_telescope.SiderealTime < endTime && Math.Abs(Position) < MAX_ANGLE && _slewing) ;
                 StopSlew();
             });
         }
@@ -141,7 +132,7 @@ namespace ASCOM.Norgate
                 throw new AxisNotStartedException();
             }
 
-            SlewRate = TRACKING_RATE;
+            SlewRate = 0;
         }
     }
 }

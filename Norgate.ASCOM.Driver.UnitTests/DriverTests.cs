@@ -109,5 +109,71 @@ namespace Norgate.ASCOM.Driver.UnitTests
             Assert.AreEqual(DriveRates.driveSidereal, rates[1]);
         }
         #endregion TrackingRates
+
+        #region RightAscension
+        [TestMethod]
+        public void RightAscension_ReturnsRAFromAxisController()
+        {
+            telescope.RAAxisController.Position = 10.345d;
+
+            Assert.AreEqual(telescope.RAAxisController.Position, telescope.RightAscension);
+        }
+        #endregion RightAscension
+
+        #region RightAscensionRate
+        [TestMethod]
+        public void GetRightAscensionRate_Returns0()
+        {
+            Assert.AreEqual(0, telescope.RightAscensionRate);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(PropertyNotImplementedException))]
+        public void SetRightAscensionRate_ThrowsNotImplemented()
+        {
+            telescope.RightAscensionRate = 10;
+        }
+        #endregion RightAscensionRate
+
+        #region CanSetRightAscensionRate
+        [TestMethod]
+        public void CanSetRightAscensionRate_ReturnsFalse()
+        {
+            Assert.IsFalse(telescope.CanSetRightAscensionRate);
+        }
+        #endregion CanSetRightAscensionRate
+
+        #region Declination
+        [TestMethod]
+        public void Declination_ReturnsRAFromAxisController()
+        {
+            telescope.DecAxisController.Position = 12.23;
+
+            Assert.AreEqual(telescope.DecAxisController.Position, telescope.Declination);
+        }
+        #endregion Declination
+
+        #region DeclinationRate
+        [TestMethod]
+        public void GetDeclinationRate_Returns0()
+        {
+            Assert.AreEqual(0, telescope.Declination);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(PropertyNotImplementedException))]
+        public void SetDeclinationRate_ThrowsNotImplemented()
+        {
+            telescope.DeclinationRate = 10;
+        }
+        #endregion DeclinationRate
+
+        #region CanSetRightAscensionRate
+        [TestMethod]
+        public void CanSetDeclinationRate_ReturnsFalse()
+        {
+            Assert.IsFalse(telescope.CanSetDeclinationRate);
+        }
+        #endregion CanSetDeclinationRate
     }
 }

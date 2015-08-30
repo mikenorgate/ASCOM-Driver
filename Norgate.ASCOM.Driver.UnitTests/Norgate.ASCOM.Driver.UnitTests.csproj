@@ -70,6 +70,7 @@
     <Compile Include="DriverTests.cs" />
     <Compile Include="FakeTelescope.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="DecAxisControllerTests.cs" />
     <Compile Include="RAAxisControllerTests.cs" />
   </ItemGroup>
   <ItemGroup>
